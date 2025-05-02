@@ -10,11 +10,6 @@ export class AuthController {
     private readonly tokenService: TokenService,
   ) {}
 
-  @Get('test')
-  test() {
-    const accessToken = this.tokenService.generateAccessToken({ id: 1, name: 'test', password: 'test', guestbooks: [], refreshTokens: [] });
-    return { data: accessToken, message: '성공적으로 토큰 가져옴 ㅅㄱ' };
-  }
   @Post('signup')
   async signUp(@Body() signUpDto: SignupDto) {
     const user = await this.authService.signUp(signUpDto);

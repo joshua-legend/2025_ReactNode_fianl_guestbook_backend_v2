@@ -37,10 +37,8 @@ export class AuthService {
   async validateUser(loginDto: LoginDto) {
     const user = await this.userRepository.findOne({ where: { name: loginDto.username } });
     if (!user) throw new UnauthorizedException('사용자를 찾을 수 없습니다');
-
-    const passwordMatches = await compare(loginDto.password, user.password);
-    if (!passwordMatches) throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
-
+    const ok = await compare(loginDto.password, user.password);
+    if (!ok) throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
     return user;
   }
 
@@ -49,5 +47,28 @@ export class AuthService {
     const accessToken = await this.tokenService.generateAccessToken(user);
     const refreshToken = await this.tokenService.generateRefreshToken(user);
     return { accessToken, refreshToken, user };
+  }
+  async logout(refreshToken: string): Promise<void> {
+    await this.tokenService.revokeRefreshToken(refreshToken);
+  }
+
+  /** 5) 토큰 갱신(Refresh Flow) */
+  async renewRefreshTokens(oldToken: string): Promise<{ accessToken: string; refreshToken: string }> {
+    // 1) 기존 토큰 검증(유효, 만료 여부 포함)
+    const payload = await this.tokenService.verifyRefreshToken(oldToken);
+    const userId = payload.sub;
+
+    // 2) (선택) 이전 리프레시 토큰 폐기
+    await this.tokenService.revokeRefreshToken(oldToken);
+
+    // 3) 사용자 정보 재조회
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
+
+    // 4) 새 토큰 발급
+    const accessToken = await this.tokenService.generateAccessToken(user);
+    const refreshToken = await this.tokenService.generateRefreshToken(user);
+
+    return { accessToken, refreshToken };
   }
 }

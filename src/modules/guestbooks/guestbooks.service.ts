@@ -13,8 +13,14 @@ export class GuestbooksService {
     private guestbooksRepository: Repository<Guestbook>,
     private usersService: UsersService,
   ) {}
-  create(createGuestbookDto: CreateGuestbookDto, userId: number) {
-    return 'This action adds a new guestbook';
+  async create(createGuestbookDto: CreateGuestbookDto, userId: number) {
+    const user = await this.usersService.findOne(userId);
+    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+    const guestbook = this.guestbooksRepository.create({
+      ...createGuestbookDto,
+      user,
+    });
+    return this.guestbooksRepository.save(guestbook);
   }
 
   async findAll() {
