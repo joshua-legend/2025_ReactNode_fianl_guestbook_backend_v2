@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:16
+    volumes:
+      - ./database/postgres_data:/var/lib/postgresql/data
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: qwer1234!
+      POSTGRES_DB: guestbook
