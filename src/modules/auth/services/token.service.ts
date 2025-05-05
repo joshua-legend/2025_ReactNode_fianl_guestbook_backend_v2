@@ -16,13 +16,13 @@ export class TokenService {
 
   async generateAccessToken(user: User) {
     const payload = { sub: user.id, username: user.name };
-    return this.jwtService.sign(payload, { expiresIn: '40s', secret: 'lemon' });
+    return this.jwtService.sign(payload, { expiresIn: '1m', secret: 'lemon' });
   }
 
   async generateRefreshToken(user: User) {
     const payload = { sub: user.id, username: user.name };
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '1m', secret: 'lemon' });
-    const expiresAt = new Date(Date.now() + parseMS('1m'));
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '2m', secret: 'lemon' });
+    const expiresAt = new Date(Date.now() + parseMS('2m'));
     await this.refreshTokenRepository.save({ token: refreshToken, expiresAt, user });
     return refreshToken;
   }

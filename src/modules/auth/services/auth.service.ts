@@ -71,4 +71,12 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
+
+  async getUserByRefreshToken(refreshToken: string): Promise<User> {
+    const payload = await this.tokenService.verifyRefreshToken(refreshToken);
+    const userId = payload.sub;
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('사용자를 찾을 수 없습니다.');
+    return user;
+  }
 }

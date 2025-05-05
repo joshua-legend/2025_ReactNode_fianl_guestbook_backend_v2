@@ -6,12 +6,7 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 @Controller('guestbooks')
 export class GuestbooksController {
   constructor(private readonly guestbooksService: GuestbooksService) {}
-  @Post('/test')
-  async test(@Body() createGuestbookDto: CreateGuestbookDto, @Req() req) {
-    const userId = req.user;
-    console.log(req.user);
-    return { data: userId, message: '방명록 작성 성공' };
-  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   async create(@Body() createGuestbookDto: CreateGuestbookDto, @Req() req) {
